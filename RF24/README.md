@@ -18,3 +18,7 @@ Please refer to:
 This chip uses the SPI bus, plus two chip control pins.  Remember that pin 10 must still remain an output, or
 the SPI hardware will go into 'slave' mode.
 
+
+
+
+This library is the compatible with Teensyduino. Use this version instead, it's already tested. //lenapizarro
