@@ -22,11 +22,27 @@ class AudioConnection;
 
 //typedef bitset<8> BYTE;
 
-typedef struct peine_block_struct
-{
+typedef struct peine_block_struct {
   unsigned char ref_count;
 	unsigned char memory_pool_index;
 	unsigned char reserved1;
 	unsigned char reserved2;
   uint8_t data[PEINE_BLOCK_SAMPLES];
 }
+
+class peine_lib_h
+{
+	public:
+	peine_lib(){};
+	
+	peine_block_t * decimate(audio_block_t *block, int downsample);	
+	audio_block_t * interp_zeros(peine_block_t *peine, int upsample);
+	audio_block_t * interp_linear(peine_block_t *peine, uint16_t upsample);
+	
+	private:
+	audio_block_t *block;
+	int downsample;
+	peine_block_t *peine;
+	int upsample;
+	uint16_t upsample;
+	}
