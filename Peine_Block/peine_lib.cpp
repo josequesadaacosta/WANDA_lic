@@ -1,6 +1,6 @@
 /*
 Library for decimation and interpolation. 
-*/
+
 
 #include <Audio.h>
 #include <Wire.h>
@@ -8,6 +8,7 @@ Library for decimation and interpolation.
 #include <SD.h>
 #include <SerialFlash.h>
 #include <RF24.h>
+*/
 #include "peine_lib.h"
 
 //Downsamples an audio_block_t into a peine_block_t, add an antialiasing filter before 

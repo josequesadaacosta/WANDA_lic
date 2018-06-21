@@ -1,8 +1,4 @@
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
+
 #include "mixer.h"
 
 
@@ -152,6 +148,60 @@ void setup() {
   //sgtl5000_1.inputSelect(AUDIO_INPUT_LINEIN);
   sgtl5000_1.micGain(1);
   
+  
+  //Create channel objects
+  channel ch1
+  channel ch2
+  channel ch3
+  master master
+  
+  
+  //Read and initialize variables
+    //Read gain
+	float ch1_gain = ch1.gain();
+	float ch2_gain = ch2.gain();
+	float ch3_gain = ch3.gain();
+	
+	//Read 3 band eq parameters
+	//Channel 1
+	float ch1_hp = ch1.hp();
+	float ch1_bpgain = ch1.bpgain();
+	uint16_t ch1_bpfreq = ch1.bpfreq();
+	float ch1_lp = ch1.lp();
+	
+	//Channel 2
+	ch2.hp = ;
+	float ch2_hp = ch2.hp();
+	float ch2_bpgain = ch2.bpgain();
+	uint16_t ch2_bpfreq = ch2.bpfreq();
+	float ch2_lp = ch2.lp();
+
+	//Channel 3
+	float ch3_hp = ch3.hp();
+	float ch3_bpgain = ch3.bpgain();
+	uint16_t ch3_bpfreq = ch3.bpfreq();
+	float ch3_lp = ch3.lp();
+	
+	//Master
+	float master_hp = master.hp();
+	float master_bpgain = master.bpgain();
+	uint16_t master_bpfreq = master.bpfreq();
+	float master_lp = master.lp();
+	
+	
+	//Read volume
+	float ch1_r = ch1.l();
+	float ch2_r = ch2.l();
+	float ch3_r = ch3.l();
+	float ch1_l = ch1.l();
+	float ch2_l = ch2.l();
+	float ch3_l = ch3.l();
+	float master_r = master.r();
+	float master_l = master.l();
+	float master_mono = master.mono();
+	
+  
+  
   //Set non-changing parameters
   //Channel 1
   high1.setHighpass(0,12000,0.7071);
@@ -171,6 +221,72 @@ void setup() {
   l_high_master.setHighpass(0,12000,0.7071);
   l_low_master.setLowpass(0,80,0.7071);
   
-   
+  
+}
+
+void loop() {
+	
+	//Modify gain
+	if(ch1_gain != ch1.gain()){
+		gain1.gain(0,ch1.gain());
+		gain1.gain(1,ch1.gain());
+	}
+	
+	
+	//Modify 3 band eq
+	if(ch1_hp != ch1.hp()){
+		eq1.gain(0,ch1.hp());
+	}
+	if(ch1_bpgain != ch1.bpgain()){
+		eq1.gain(1,ch1.bpgain());
+	}
+	if(ch1_bpfreq != ch1.bpfreq()){
+		medium1.setBandpass(0, ch1.bpfreq(), 0.7071);
+	}
+	if(ch1_lp != ch1.lp()){
+		eq1.gain(2,ch1.lp());
+	}
+	
+	//Modify pan
+	if(ch1_r != ch1.r()){
+		r1.gain(ch1.r());
+		l1.gain(ch1.l());
+	}
+	
+	//Modify level
+	if(ch1_level != ch1.level()){
+		r.gain(0,ch1.level());
+		l.gain(0,ch1.level());
+	}
+	
+	
+	//Master 
+	//Eq
+	if(master_hp != master.hp()){
+		r_eq_master.gain(0,master.hp());
+		l_eq_master.gain(0,master.hp());
+	}
+	if(master_bpgain != master.bpgain()){
+		r_eq_master.gain(1,master.bpgain());
+		l_eq_master.gain(1,master.bpgain());
+	}
+	if(master_bpfreq != master.bpfreq()){
+		r_medium_master.setBandpass(0, master.bpfreq(), 0.7071);
+		l_medium_master.setBandpass(0, master.bpfreq(), 0.7071);
+	}
+	if(master_lp != master.lp()){
+		r_eq_master.gain(2,master.lp());
+		l_eq_master.gain(2,master.lp());
+	}
+	
+	//Level	
+	if(master_level != master.level()){
+		r_master.gain(0,master.level());
+		l_master.gain(0,master.level());
+	}
+	
+
+		
+
 }
 

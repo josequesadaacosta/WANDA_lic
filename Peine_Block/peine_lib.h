@@ -9,6 +9,12 @@ PEINE_BLOCK_SAMPLES = 64 samples
 #ifndef __ASSEMBLER__
 #include <stdio.h>  // for NULL
 #include <string.h> // for memcpy
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
+#include <RF24.h>
 #include "kinetis.h"
 #endif
 
