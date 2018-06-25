@@ -1,0 +1,79 @@
+#include <Arduino.h>
+
+use namespace std;
+
+class channel : AudioStream  
+{
+public:
+ channel(void); //constructor
+ float gain, gain_i;
+ float hp, hp_i;
+ float bpgain, bpgain_i;
+ uint16_t bpfreq, bpfreq_i;
+ float lp, lp_i;
+ float pan, pan_i;
+ float r, r_i;
+ float l, l_i;
+ float level, level_i;
+
+ void setGain();
+ void setHp();
+ void setBpgain();
+ void setBpgfreq();
+ void setLp();
+ void setPan();
+ void setR();
+ void setL();
+ void setLevel();
+
+ float getGain();
+ float getHp();
+ float getBpgain();
+ float getBpgfreq();
+ float getLp();
+ float getPan();
+ float getR();
+ float getL();
+ float getLevel();
+
+};
+
+float lineal(float input, int max);
+
+******************************************************
+
+
+
+void setGain(float analog_return)
+{
+  if(gain){
+  gain_i = gain;
+  }
+  gain = analog_return;
+ }
+
+float getGain()
+{
+  return gain;  
+}
+
+float getGain_i()
+{
+  return gain_i;  
+}
+
+
+
+
+
+
+
+float lineal(float input, int max){
+ int analog_return = AnalogRead();
+ float analogFloat = (float) analog_return;
+ 
+ return input;
+}
+
+
+
