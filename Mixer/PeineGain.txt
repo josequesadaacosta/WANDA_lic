@@ -68,7 +68,7 @@ float getGain_i()
 
 
 
-float lineal(float input, int max){
+float lineal(float input){
  int analog_return = AnalogRead();
  float analogFloat = (float) analog_return;
  

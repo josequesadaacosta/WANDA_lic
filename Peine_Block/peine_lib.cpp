@@ -87,3 +87,19 @@ audio_block_t * interp_linear(peine_block_t *peine,uint16_t upsample){
 		i = i + upsample;
 	}
 }
+
+
+void peine_lib::update(){
+	audio_block_t *block;
+	peine_block_t *peine;
+	int downsample;
+	int upsample;
+
+	block = receiveWritable();
+	if (!block) return;
+	decimate(block,downsample);
+	interp_zeros(peine,upsample);
+	interp_linear(peine,upsample);
+	transmit(block);
+	release(block);
+}

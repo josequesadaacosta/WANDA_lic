@@ -303,8 +303,10 @@ void setup() {
 void loop() {
 	
 	//Modify gain
-		gain1.gain(0,lineal(ch1.,max));
+	if(ch1.getGain() != ch1.getGain_i()){
+		gain1.gain(0,lineal(ch1.getGain(),max));
 		gain1.gain(1,lineal(ch1.getGain(),max));
+	}
 	
 	if(ch2.getGain() != ch2.getGain_i()){
 		gain2.gain(0,lineal(ch2.getGain(),max));
