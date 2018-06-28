@@ -12,6 +12,7 @@ class channel : AudioStream
 public:
  channel(void); //constructor
  float gain;
+ float compresor;
  float hp;
  float bpgain;
  float bpfreq;
