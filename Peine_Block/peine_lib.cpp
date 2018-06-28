@@ -6,29 +6,33 @@
 //Downsamples an audio_block_t into a peine_block_t, add an antialiasing filter before 
 //implementing to prevent aliasing.
 //Downsample has to be a natural int number that satisfies AUDIO_BLOCK_SAMPLES/downsample
-peine_block_t * decimate(audio_block_t *block,int downsample){
+static void decimate(audio_block_t *block, peine_block_t *peine, int downsample){
 	
-	block = receiveWritable();
 	int i = 0;
-	peine_block_t *peine;
+	//peine->ref_count = block->ref_count;
+	//peine->memory_pool_index = block->memory_pool_index;
+	//peine->reserved1 = block->reserved1;
+	//peine->reserved2 = block->reserved2;
 	
 	
 	while(i<PEINE_BLOCK_SAMPLES){
-		peine->data[i] = static_cast<uint8_t>(block->data[downsample*i]);
+		peine->data[i] = static_cast<uint8_t>(block->data[downsample*i]>>8);
+		printf("%d",peine->data[i]);
 		i++;
 	}
-	
-	return peine;
 
 }
 
 //Interpolates a peine_block_t into an audio_block_t adding zeros, add a low pass filter with an aprox
 //25kHz cutoff frequency to have an appropiate output.
 //Upsample has to be a natural int number that satisfies PEINE_BLOCK_SAMPLES/downsample
-audio_block_t * interp_zeros(peine_block_t *peine, int downsample){
-	
-	audio_block_t *block;
+static void interp_zeros(audio_block_t *block, peine_block_t *peine, int downsample){
+
 	int i = 0;
+	//block->ref_count = peine->ref_count;
+	//block->memory_pool_index = peine->memory_pool_index;
+	//block->reserved1 = peine->reserved1;
+	//block->reserved2 = peine->reserved2;
 	
 	while(i<AUDIO_BLOCK_SAMPLES){
 		if(i%downsample == 0){
@@ -38,7 +42,6 @@ audio_block_t * interp_zeros(peine_block_t *peine, int downsample){
 		}		
 		i++;
 	}
-	return block;
 }
 
 
@@ -46,17 +49,21 @@ audio_block_t * interp_zeros(peine_block_t *peine, int downsample){
 //linear aproximations, add a low pass filter with an aprox 25kHz cutoff frequency 
 //to have an appropiate output.
 //Upsample has to be a natural int number that satisfies PEINE_BLOCK_SAMPLES/downsample
-audio_block_t * interp_linear(peine_block_t *peine,int downsample){
+static void interp_linear(audio_block_t *block, peine_block_t *peine, int downsample){
 	
-	audio_block_t *block;
-	uint16_t i = 0;
+	int i = 0;
+	
+	//block->ref_count = peine->ref_count;
+	//block->memory_pool_index = peine->memory_pool_index;
+	//block->reserved1 = peine->reserved1;
+	//block->reserved2 = peine->reserved2;
 	
 	while(i < AUDIO_BLOCK_SAMPLES-downsample){
 
 		block->data[i] = static_cast<uint16_t>(peine->data[i]);
 		block->data[i+downsample] = static_cast<uint16_t>(peine->data[i+1]);
 		
-		uint16_t j = 1;
+		int j = 1;
 		
 		while(j < downsample){
 			
@@ -66,17 +73,17 @@ audio_block_t * interp_linear(peine_block_t *peine,int downsample){
 					
 		i = i + downsample;
 	}
-	return block;
 }
 
 
 void ModifyDataRateZeros::update(){
 	audio_block_t *block;
-	int rate;
+	peine_block_t *peine=NULL;
 
 	block = receiveWritable();
 	if (!block) return;
-	block = interp_zeros(decimate(block,rate),downsample);
+	decimate(block, peine , downsample);
+	interp_zeros(block, peine, downsample);
 	transmit(block);
 	release(block);
 	
@@ -84,11 +91,12 @@ void ModifyDataRateZeros::update(){
 
 void ModifyDataRateLinear::update(){
 	audio_block_t *block;
-	int rate;
+	peine_block_t *peine=NULL;
 
 	block = receiveWritable();
 	if (!block) return;
-	block = interp_linear(decimate(block,rate),downsample);
+	decimate(block, peine , downsample);
+	interp_linear(block, peine, downsample);
 	transmit(block);
 	release(block);
 }
