@@ -9,15 +9,9 @@
 static void decimate(audio_block_t *block, peine_block_t *peine, int downsample){
 	
 	int i = 0;
-	//peine->ref_count = block->ref_count;
-	//peine->memory_pool_index = block->memory_pool_index;
-	//peine->reserved1 = block->reserved1;
-	//peine->reserved2 = block->reserved2;
-	
 	
 	while(i<PEINE_BLOCK_SAMPLES){
 		peine->data[i] = static_cast<uint8_t>(block->data[downsample*i]>>8);
-		printf("%d",peine->data[i]);
 		i++;
 	}
 
@@ -29,14 +23,10 @@ static void decimate(audio_block_t *block, peine_block_t *peine, int downsample)
 static void interp_zeros(audio_block_t *block, peine_block_t *peine, int downsample){
 
 	int i = 0;
-	//block->ref_count = peine->ref_count;
-	//block->memory_pool_index = peine->memory_pool_index;
-	//block->reserved1 = peine->reserved1;
-	//block->reserved2 = peine->reserved2;
 	
 	while(i<AUDIO_BLOCK_SAMPLES){
 		if(i%downsample == 0){
-			block->data[i] = static_cast<uint16_t>(peine->data[i]);
+			block->data[i] = static_cast<uint16_t>(peine->data[i]<<8);
 		}else{
 			block->data[i] = 0;
 		}		
@@ -53,21 +43,16 @@ static void interp_linear(audio_block_t *block, peine_block_t *peine, int downsa
 	
 	int i = 0;
 	
-	//block->ref_count = peine->ref_count;
-	//block->memory_pool_index = peine->memory_pool_index;
-	//block->reserved1 = peine->reserved1;
-	//block->reserved2 = peine->reserved2;
-	
 	while(i < AUDIO_BLOCK_SAMPLES-downsample){
 
-		block->data[i] = static_cast<uint16_t>(peine->data[i]);
-		block->data[i+downsample] = static_cast<uint16_t>(peine->data[i+1]);
+		block->data[i] = static_cast<uint16_t>(peine->data[i]<<8);
+		block->data[i+downsample] = static_cast<uint16_t>(peine->data[i+1]<<8);
 		
 		int j = 1;
 		
 		while(j < downsample){
 			
-			block->data[i+j] = static_cast<uint16_t>(block->data[i+downsample]+(j-i-downsample)*(block->data[i+downsample]-block->data[i])/downsample);
+			block->data[i+j] = static_cast<uint16_t>((block->data[i+downsample]+(j-i-downsample)*(block->data[i+downsample]-block->data[i])/downsample)<<8);
 			j++;
 		}
 					
@@ -78,12 +63,12 @@ static void interp_linear(audio_block_t *block, peine_block_t *peine, int downsa
 
 void ModifyDataRateZeros::update(){
 	audio_block_t *block;
-	peine_block_t *peine=NULL;
+	peine_block_t peine;
 
 	block = receiveWritable();
 	if (!block) return;
-	decimate(block, peine , downsample);
-	interp_zeros(block, peine, downsample);
+	decimate(block, &peine , downsample);
+	interp_zeros(block, &peine, downsample);
 	transmit(block);
 	release(block);
 	
@@ -91,12 +76,12 @@ void ModifyDataRateZeros::update(){
 
 void ModifyDataRateLinear::update(){
 	audio_block_t *block;
-	peine_block_t *peine=NULL;
+	peine_block_t peine;
 
 	block = receiveWritable();
 	if (!block) return;
-	decimate(block, peine , downsample);
-	interp_linear(block, peine, downsample);
+	decimate(block, &peine , downsample);
+	interp_linear(block, &peine, downsample);
 	transmit(block);
 	release(block);
 }

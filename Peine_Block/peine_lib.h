@@ -40,6 +40,8 @@ class ModifyDataRateZeros : public AudioStream {
 	void rate(int i){
 		downsample = i;
 	}	
+
+	
 	virtual void update(void);
 	
 	private:
@@ -54,7 +56,8 @@ class ModifyDataRateLinear : public AudioStream {
 	
 	void rate(int i){
 		downsample = i;
-	}	
+	}
+	
 	virtual void update(void);
 	
 	private:
