@@ -6,20 +6,13 @@ PEINE_BLOCK_SAMPLES = 64 samples
 #ifndef peine_lib_h
 #define peine_lib_h
 
-//#include "stdio.h"  // for NULL
-//#include "string.h" // for memcpy
-//#include "Audio.h"
-//#include "SD.h"
+
 #include "Arduino.h"
 #include "AudioStream.h"
-//#include "SerialFlash.h"
-//#include "RF24.h"
-//#include "kinetis.h"
+#include "math.h"
 
-
-//#ifndef PEINE_BLOCK_SAMPLES
-//#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define PEINE_BLOCK_SAMPLES  64
+#define max_norm 1023 //Defines maximum compression value for normalization in method
 
 
 //typedef bitset<8> BYTE;
@@ -50,6 +43,23 @@ class ModifyDataRateZeros : public AudioStream {
 	peine_block_t *peine;
 };
 
+class ModifyDataRateBuffer : public AudioStream {
+	public:
+	ModifyDataRateBuffer(void): AudioStream(1,inputQueueArray){};
+	
+	void rate(int i){
+		downsample = i;
+	}	
+
+	
+	virtual void update(void);
+	
+	private:
+	audio_block_t *inputQueueArray[1];
+	int downsample;
+	peine_block_t *peine;
+};
+
 class ModifyDataRateLinear : public AudioStream {
 	public:
 	ModifyDataRateLinear(void): AudioStream(1,inputQueueArray){};
@@ -57,6 +67,7 @@ class ModifyDataRateLinear : public AudioStream {
 	void rate(int i){
 		downsample = i;
 	}
+
 	
 	virtual void update(void);
 	
@@ -64,6 +75,23 @@ class ModifyDataRateLinear : public AudioStream {
 	audio_block_t *inputQueueArray[1];
 	peine_block_t *peine;
 	int downsample;
+};
+
+class Compressor : public AudioStream
+{
+	#if defined(KINETISK)
+	public:
+		Compressor(void)
+	  : AudioStream(1, inputQueueArray) {}
+	virtual void update(void);
+	void threshold(float thres) {
+		level = thres ;
+	}
+
+	private:
+	audio_block_t *inputQueueArray[1];
+	int16_t level;
+	#endif
 };
 
 
