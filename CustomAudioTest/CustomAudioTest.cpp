@@ -1,6 +1,6 @@
 
 /*
-Custom Block for WANDA tests
+  Custom Block for WANDA tests
 */
 
 #include "CustomAudioTest.h"
@@ -26,9 +26,17 @@ void CustomAudioTest::update()
   audio_block_t *block;
   uint16_t gain = multiplier;
 
-	block = receiveWritable();
-	if (!block) return;
-  multiplyGain(block->data, gain);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
+  block = receiveReadOnly();
+  if (!block) return;
+
+//  printArray(block->data, 128);
+
+  //multiplyGain(block->data, gain);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
   transmit(block);
   release(block);
 }
+
+
+
+
+

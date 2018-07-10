@@ -1,38 +1,27 @@
-/*
-  Custom Block for WANDA tests
-  Header file
-*/
+// WANDA Transmitter header.
 
-#ifndef CustomAudioTest_h_
-#define CustomAudioTest_h_
+#ifndef AudioOutputRF24TX_h_
+#define AudioOutputRF24TX_h_
 
-#include "Arduino.h"
 #include "AudioStream.h"
-
-
-
 #include "RF24.h"
 #include "nRF24L01.h"
+#include <Arduino.h>
 
 
 #define PEINE_BLOCK_SAMPLES  64
 
-
-class CustomAudioTest : public AudioStream
+class AudioOutputRF24TX : public AudioStream
 {
-#if defined(KINETISK)
   public:
-    CustomAudioTest(void) : AudioStream(1, inputQueueArray), radio(28, 39)
+    AudioOutputRF24TX() : AudioStream(1, inputQueueArray), radio(28, 39)
     {
       this->peine = new int8_t [PEINE_BLOCK_SAMPLES];
+      this->prueba = new int8_t [32];
+    }
 
-    }
+    //Update function happens every 2.9 ms, or 128 samples.
     virtual void update(void);
-    void gain(float gain) {
-      if (gain > 32767.0f) gain = 32767.0f;
-      else if (gain < -32767.0f) gain = -32767.0f;
-      multiplier = gain * 65536.0f;
-    }
 
     //transmitter setup
     void transmitterSetup()
@@ -64,27 +53,40 @@ class CustomAudioTest : public AudioStream
       radio.openWritingPipe(PTXpipe);
     }
 
+    bool updated;
+    bool sent;
+
+    int16_t getTransmitterData(int i)
+    {
+      return block->data[i];
+    }
+
+    int8_t getTransmitterData1(int i)
+    {
+      return peine[i];
+    }
+
+    int8_t* getTransmitterPrueba()
+    {
+      return prueba;
+    }
+
+    void gain(float gain) {
+      if (gain > 32767.0f) gain = 32767.0f;
+      else if (gain < -32767.0f) gain = -32767.0f;
+      multiplier = gain * 65536.0f;
+    }
 
   private:
+    // inputQueueArray: array of audio_block pointers used for the inputs. It is a must if
+    //the audio block has any inputs. If it does not need inputs, then AudioStream(0, NULL).
     audio_block_t *inputQueueArray[1];
-    int16_t multiplier;
     int8_t *peine;
+    int8_t *prueba;
     audio_block_t *block;
     int downsample;
     RF24 radio;
-#endif
+    int16_t multiplier;
+
 };
-
-
-
-template<class T>
-static void printArray(T* t, int size)
-{
-  for (int i = 0; i < size; i++)
-  {
-    Serial.print(t[i]);
-    Serial.print(" ");
-  }
-  Serial.println();
-}
 #endif
