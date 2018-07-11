@@ -30,8 +30,6 @@ void setup()
   Serial.begin(9600);
   AudioMemory(12);
 
-  audiotest.transmitterSetup();
-
   sgtl5000_1.enable();
   sgtl5000_1.inputSelect(myInput);
   sgtl5000_1.volume(0.5);
@@ -41,6 +39,18 @@ void setup()
 
 void loop()
 {
-  Serial.println("\_o< CUAK");
-//  audiotest.gain(0.9);
+  Serial.println("\\_o< CUAK");
+  Serial.println("block->data[]");
+  for (int j = 0; j < 128; j++)
+  {
+    Serial.print(audiotest.getTransmitterData(j));
+  }
+  Serial.println();
+  Serial.println("peine");
+  for (int j = 0; j < 64; j++)
+  {
+    Serial.print(audiotest.getTransmitterData1(j));
+  }
+
+  Serial.println("EEEK <oO~");
 }

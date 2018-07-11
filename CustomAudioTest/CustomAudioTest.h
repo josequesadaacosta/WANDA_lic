@@ -24,14 +24,32 @@ class CustomAudioTest : public AudioStream
   public:
     CustomAudioTest(void) : AudioStream(1, inputQueueArray), radio(28, 39)
     {
+      __disable_irq();
       this->peine = new int8_t [PEINE_BLOCK_SAMPLES];
+      this->transmitterSetup();
+    }
 
+    ~CustomAudioTest()
+    {
+      __enable_irq();
     }
     virtual void update(void);
+    
     void gain(float gain) {
       if (gain > 32767.0f) gain = 32767.0f;
       else if (gain < -32767.0f) gain = -32767.0f;
       multiplier = gain * 65536.0f;
+    }
+
+    
+    int16_t getTransmitterData(int i)
+    {
+      return block->data[i];
+    }
+
+    int8_t getTransmitterData1(int i)
+    {
+      return peine[i];
     }
 
     //transmitter setup
@@ -70,6 +88,7 @@ class CustomAudioTest : public AudioStream
     int16_t multiplier;
     int8_t *peine;
     audio_block_t *block;
+    
     int downsample;
     RF24 radio;
 #endif

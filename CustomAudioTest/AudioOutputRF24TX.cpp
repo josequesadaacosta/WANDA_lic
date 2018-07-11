@@ -58,31 +58,31 @@ void AudioOutputRF24TX::update()
   transmit(block);
   release(block);
 
-  
-//  downsample = 2;
-//  block = receiveReadOnly();
-//
-//  if (!block) 
-//  {
-//    Serial.println("Cromé");
-//    return;
-//  }
-//  
-//  Serial.println("block =========");
-//  printArray(block->data, 128);
-//  Serial.println("Peine =========");
-//  printArray(peine, 64);
-//
-//  delay(10000);
-//  decimate(block, peine, downsample);
-//  this->updated = true;
-//  
-//  __disable_irq();
-//
-//  transmit(block);
-////  radio.startWrite(peine, sizeof(uint8_t)*32);
-//  
-//  __enable_irq();
-//
-//  release(block);
+
+  //  downsample = 2;
+  //  block = receiveReadOnly();
+  //
+  //  if (!block)
+  //  {
+  //    Serial.println("Cromé");
+  //    return;
+  //  }
+  //
+  //  Serial.println("block =========");
+  //  printArray(block->data, 128);
+  //  Serial.println("Peine =========");
+  //  printArray(peine, 64);
+  //
+  //  delay(10000);
+  //  decimate(block, peine, downsample);
+  //  this->updated = true;
+  //
+  //  __disable_irq();
+  //
+  //  transmit(block);
+  ////  radio.startWrite(peine, sizeof(uint8_t)*32);
+  //
+  //  __enable_irq();
+  //
+  //  release(block);
 }

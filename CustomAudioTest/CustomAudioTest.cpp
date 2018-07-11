@@ -7,6 +7,13 @@
 #include "utility/dspinst.h"
 
 
+static void decimate(audio_block_t *block, int8_t *peine, int downsample)
+{
+
+  for (int i = 0; i < PEINE_BLOCK_SAMPLES; i++) {
+    peine[i] = static_cast<int8_t>(block->data[downsample * i]);
+  }
+}
 static void multiplyGain(int16_t *data, int32_t mult)
 {
   uint32_t *p = (uint32_t *)data;
@@ -29,9 +36,14 @@ void CustomAudioTest::update()
   block = receiveReadOnly();
   if (!block) return;
 
-//  printArray(block->data, 128);
-
   //multiplyGain(block->data, gain);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
+  decimate(block, peine, downsample);
+
+
+//  __disable_irq();
+//  radio.startWrite(block->data, sizeof(uint8_t)*32);
+  //radio.startWrite(peine, sizeof(uint8_t)*32);
+//  __enable_irq();
   transmit(block);
   release(block);
 }
