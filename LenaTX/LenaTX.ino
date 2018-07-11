@@ -3,13 +3,13 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
-#include "./CustomAudioTest.h"
+#include "./LenaTX.h"
 
 #define SDCARD_CS_PIN    10
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
-CustomAudioTest          audiotest;
+LenaTX          audiotest;
 
 
 AudioInputI2S            i2s1;
@@ -20,7 +20,7 @@ AudioConnection          patchCord2(audiotest, 0, i2s2, 0);
 
 AudioControlSGTL5000     sgtl5000_1;
 
-//AudioOutputRF24TX        LenaTX;
+
 
 const int myInput = AUDIO_INPUT_LINEIN;
 
@@ -53,3 +53,4 @@ void loop()
 
   Serial.println("EEEK <oO~");
 }
+

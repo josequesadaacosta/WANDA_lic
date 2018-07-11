@@ -42,12 +42,12 @@ class CustomAudioTest : public AudioStream
     }
 
     
-    int16_t getTransmitterData(int i)
+    int16_t getBlockDataAt(int i)
     {
       return block->data[i];
     }
 
-    int8_t getTransmitterData1(int i)
+    int8_t getPeineAt(int i)
     {
       return peine[i];
     }
