@@ -22,7 +22,10 @@ class LenaTX : public AudioStream
       void transmitterSetup();
       void multiplyGain(int16_t *data, int32_t mult);
       void decimate(); //funcion maldita! -RRB
+
+      void myDecimate();
     private:
+      void qwerty();
       audio_block_t *inputQueueArray[1];
       int16_t multiplier;
       int8_t *peine;

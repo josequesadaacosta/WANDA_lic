@@ -80,19 +80,38 @@ void LenaTX::multiplyGain(int16_t *data, int32_t mult)
   } while (p < end);
 }
 
+void LenaTX::qwerty()
+{
+  this->block = allocate();
+  for (int i = 0; i < 128; i++)
+  {
+    block->data[i] = (int16_t)i * 2;
+  }
+
+}
+
+void LenaTX::myDecimate()
+{
+  for (int i = 0; i < 128; i++)
+  {
+    this->peine[i] = static_cast<int8_t>(this->block->data[i * 2]);
+  }
+}
+
 void LenaTX::update()
 {
   this->block = receiveReadOnly();
+  //this->qwerty();
   if (!(this->block)) return;
 
-  //this->multiplyGain(this->block->data, this->multiplier);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
-  this->decimate();
+  this->myDecimate();
 
 
   //  __disable_irq();
   //  this->radio.startWrite(block->data, sizeof(uint8_t)*32);
-  //this->radio.startWrite(peine, sizeof(uint8_t)*32);
+  //  this->radio.startWrite(peine, sizeof(uint8_t)*32);
   //  __enable_irq();
+  
   transmit(block);
   release(block);
 }
