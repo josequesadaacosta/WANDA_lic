@@ -62,8 +62,11 @@ static void interp_linear(audio_block_t *block, peine_block_t *peine, int downsa
 	
 	while(i < PEINE_BLOCK_SAMPLES-1){
 
-		block->data[downsample*i] = (static_cast<uint16_t>(peine->data[i])<<8);
-		block->data[downsample*i+downsample] = (static_cast<uint16_t>(peine->data[i+1])<<8);
+		//block->data[downsample*i] = (static_cast<uint16_t>(peine->data[i])<<8);
+		//block->data[downsample*i+downsample] = (static_cast<uint16_t>(peine->data[i+1])<<8);
+		
+		block->data[downsample*i] = (static_cast<int16_t>(peine->data[i])<<8);
+		block->data[downsample*i+downsample] = (static_cast<int16_t>(peine->data[i+1])<<8);
 		
 		int j = 1;
 		
@@ -73,21 +76,115 @@ static void interp_linear(audio_block_t *block, peine_block_t *peine, int downsa
 			j++;
 		}
 					
-		i++;
+		i = i + 1;
 	}
 }
 
-static void compress(audio_block_t *block, int16_t level)
+/*//Interpolates a peine_block_t into an audio_block_t getting the samples in between with 
+//linear aproximations, add a low pass filter with an aprox 25kHz cutoff frequency 
+//to have an appropiate output.
+//Upsample has to be a natural int number that satisfies PEINE_BLOCK_SAMPLES/downsample
+static void interp_linear(audio_block_t *block, peine_block_t *peine, int downsample){
+	
+	int i = 0;
+	
+	while(i < PEINE_BLOCK_SAMPLES-1){
+
+		block->data[downsample*i] = (static_cast<uint16_t>(peine->data[i])<<8);
+		block->data[downsample*i+downsample] = (static_cast<uint16_t>(peine->data[i+1])<<8);
+		
+		int j = 1;
+		
+		while(j < downsample){
+			
+			block->data[i+j] = static_cast<int16_t>((((block->data[downsample*i+downsample])-(block->data[downsample*i]))*(i+j)/downsample)+((block->data[downsample*i+downsample])*-i/downsample)+((block->data[downsample*i])*(i+downsample)/downsample));
+			j++;
+		}
+					
+		i++;
+	}
+}*/
+
+static void logcompress(audio_block_t *block, int16_t threshold)
 {
 	int i = 0;
-	int ratio = (int)pow(10,((1/5)/20)); //Converts a 1:5 compression ratio to linear
-	level = (int)pow(10, ((((1-level/max_norm)*50)-40)/20));
+	float ratio = 0.2;
+	//float level = pow(10, (float)(((1-(float)threshold/(max_norm))*50)-40)/20);
+	int level = 10;
+	int a = (((50-threshold*0.0489)-40)*0.05);
+	for(int j = 0; j < a; j++){
+		level = 10*level;
+	}
 	
+	while(i<AUDIO_BLOCK_SAMPLES){
+	
+		if(block->data[i] > 0){
+			if(block->data[i] >= level){
+				//block->data[i] = block->data[i] - level;
+				block->data[i] = (pow(block->data[i], ratio)) - level;
+			}
+				
+		}else{
+			if(block->data[i] <= -level){
+				//block->data[i] = block->data[i] - level;
+				block->data[i] = (-pow(-block->data[i], ratio)) + level;
+			}
+		}
+		i++;
+	}
+
+}
+
+static void lincompress(audio_block_t *block, int16_t threshold)
+{
+	int i = 0;
+	float ratio = 0.2; //Converts a 1:5 compression ratio to linear
+	int level = 32768 - threshold*32;
 	
 	while(i<AUDIO_BLOCK_SAMPLES){
 		
-		if(20*log10(block->data[i]) >= level){
-			block->data[i] = block->data[i]*ratio;
+		if(block->data[i] >= level){		
+			
+			block->data[i] = (block->data[i] - level)*ratio + level;
+			
+		}else{
+			
+			if(block->data[i] <= -level){
+				block->data[i] = (block->data[i] + level)*ratio - level;
+			}
+	
+		}
+		i++;
+	}
+
+}
+
+static void logsercompress(audio_block_t *block, int16_t threshold)
+{
+	int i = 0;
+	float ratio = 0.2;
+	//float level = pow(10, (float)(((1-(float)threshold/(max_norm))*50)-40)/20);
+	int level = 10;
+	int a = (((50-threshold*0.0489)-40)*0.05);
+	for(int j = 0; j < a; j++){
+		level = 10*level;
+	}
+	
+	while(i<AUDIO_BLOCK_SAMPLES){
+	
+		if(block->data[i] > 0){
+			if(block->data[i] >= level){
+				//block->data[i] = block->data[i] - level;
+				//block->data[i] = (pow(block->data[i], ratio)) - level;
+				block->data[i] = (1+(0.2*(block->data[i]-1))-(0.08*(block->data[i]-1)*(block->data[i]-1))+(0.048*(block->data[i]-1)*(block->data[i]-1)*(block->data[i]-1))) - level;
+			}
+				
+		}else{
+			if(block->data[i] <= -level){
+				//block->data[i] = block->data[i] - level;
+				//block->data[i] = (-pow(-block->data[i], ratio)) + level;
+				block->data[i] = -(1+(0.2*(-block->data[i]-1))-(0.08*(block->data[i]-1)*(-block->data[i]-1))+(0.048*(-block->data[i]-1)*(-block->data[i]-1)*(-block->data[i]-1))) + level;
+			}
 		}
 		i++;
 	}
@@ -135,13 +232,36 @@ void ModifyDataRateLinear::update(){
 	release(block);
 }
 
-void Compressor::update()
+void LogCompressor::update()
 {
   audio_block_t *block;
 
   block = receiveWritable();
   if (!block) return;
-  compress(block, level);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
+  logcompress(block, level);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
   transmit(block);
   release(block);
 }
+
+void LinCompressor::update()
+{
+  audio_block_t *block;
+
+  block = receiveWritable();
+  if (!block) return;
+  lincompress(block, level);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
+  transmit(block);
+  release(block);
+}
+
+void LogSerCompressor::update()
+{
+  audio_block_t *block;
+
+  block = receiveWritable();
+  if (!block) return;
+  logsercompress(block, level);  // audio_block_t ->	int16_t data[AUDIO_BLOCK_SAMPLES]
+  transmit(block);
+  release(block);
+}
+

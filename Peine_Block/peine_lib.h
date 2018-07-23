@@ -77,11 +77,45 @@ class ModifyDataRateLinear : public AudioStream {
 	int downsample;
 };
 
-class Compressor : public AudioStream
+class LogCompressor : public AudioStream
 {
 	#if defined(KINETISK)
 	public:
-		Compressor(void)
+		LogCompressor(void)
+	  : AudioStream(1, inputQueueArray) {}
+	virtual void update(void);
+	void threshold(float thres) {
+		level = thres ;
+	}
+
+	private:
+	audio_block_t *inputQueueArray[1];
+	int16_t level;
+	#endif
+};
+
+class LinCompressor : public AudioStream
+{
+	#if defined(KINETISK)
+	public:
+		LinCompressor(void)
+	  : AudioStream(1, inputQueueArray) {}
+	virtual void update(void);
+	void threshold(float thres) {
+		level = thres ;
+	}
+
+	private:
+	audio_block_t *inputQueueArray[1];
+	int16_t level;
+	#endif
+};
+
+class LogSerCompressor : public AudioStream
+{
+	#if defined(KINETISK)
+	public:
+		LogSerCompressor(void)
 	  : AudioStream(1, inputQueueArray) {}
 	virtual void update(void);
 	void threshold(float thres) {
