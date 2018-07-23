@@ -4,13 +4,14 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include <Arduino.h>
+#include <math.h>
 
-use namespace std;
+//use namespace std;
 
-class channel : AudioStream  
+class channel  
 {
 public:
- channel(void); //constructor
+ channel(void){}; //constructor
  float gain;
  float compresor;
  float hp;
